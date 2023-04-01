@@ -7,6 +7,6 @@ public record PlayerDto(
         String name
 ) {
     public static PlayerDto from(Player player) {
-        return new PlayerDto(player.id().toString(), player.name());
+        return new PlayerDto(player.stringId(), player.name());
     }
 }

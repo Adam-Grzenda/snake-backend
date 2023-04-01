@@ -1,4 +1,4 @@
-package pl.put.snake.game.utils;
+package pl.put.snake.game.logic.board;
 
 import org.springframework.stereotype.Component;
 import pl.put.snake.game.model.Coordinates;

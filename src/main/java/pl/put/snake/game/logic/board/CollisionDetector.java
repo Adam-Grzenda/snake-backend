@@ -1,15 +1,17 @@
-package pl.put.snake.game.utils;
+package pl.put.snake.game.logic.board;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.put.snake.game.model.Coordinates;
 import pl.put.snake.game.model.Snake;
+import pl.put.snake.game.utils.LoggingUtils;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Log4j2
+@Slf4j
 @Component
 public class CollisionDetector {
 
@@ -23,9 +25,14 @@ public class CollisionDetector {
     }
 
     private Set<Snake> getCollidedWithWallSnakes(Set<Snake> snakes, int boardSize) {
-        return snakes.stream()
+        var collidedSnakes = snakes.stream()
                 .filter(snake -> isCollidedWithWall(snake.getHead(), boardSize))
                 .collect(Collectors.toSet());
+
+        if (!collidedSnakes.isEmpty()) {
+            log.info("Collided: {} with wall", LoggingUtils.setToString(collidedSnakes));
+        }
+        return collidedSnakes;
     }
 
     private boolean isCollidedWithWall(Coordinates coordinates, int boardSize) {
@@ -36,12 +43,16 @@ public class CollisionDetector {
         var collided = new HashSet<Snake>();
         for (var snake : snakes) {
             for (var otherSnake : snakes) {
-                if (hasCollision(snake, otherSnake)) {
+                if (!Objects.equals(snake, otherSnake) && hasCollision(snake, otherSnake)) {
                     collided.add(snake);
                 }
             }
         }
-        log.info("Collided: {}", String.join(" ", collided.stream().map(Object::toString).toList()));
+
+        if (!collided.isEmpty()) {
+            log.info("Collided: {}", LoggingUtils.setToString(collided));
+        }
+
         return collided;
     }
 

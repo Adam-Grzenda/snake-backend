@@ -3,9 +3,9 @@ package pl.put.snake.game;
 import org.springframework.stereotype.Service;
 import pl.put.snake.game.dto.GameDto;
 import pl.put.snake.game.dto.SnakeDto;
-import pl.put.snake.game.model.Game;
-import pl.put.snake.game.utils.CollisionDetector;
-import pl.put.snake.game.utils.RandomGenerator;
+import pl.put.snake.game.logic.Game;
+import pl.put.snake.game.logic.board.CollisionDetector;
+import pl.put.snake.game.logic.board.RandomGenerator;
 import pl.put.snake.player.PlayerService;
 
 import java.util.HashMap;
@@ -30,6 +30,7 @@ public class GameService {
 
     public GameDto createGame(GameDto gameRequest) {
         var game = new Game(gameRequest.boardSize(), randomGenerator, collisionDetector);
+        games.put(game.getId().toString(), game);
         return GameDto.from(game);
     }
 

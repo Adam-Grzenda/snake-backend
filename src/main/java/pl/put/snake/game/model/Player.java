@@ -6,4 +6,7 @@ public record Player(
         UUID id,
         String name
 ) {
+    public String stringId() {
+        return id.toString();
+    }
 }

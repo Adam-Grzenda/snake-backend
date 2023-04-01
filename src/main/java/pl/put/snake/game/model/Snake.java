@@ -6,13 +6,11 @@ import java.util.Set;
 import java.util.UUID;
 
 public class Snake {
-    private final int id;
     private final UUID playerId;
     private final ArrayDeque<Coordinates> parts;
     private Direction direction;
 
-    public Snake(int id, Coordinates head, Direction initialDirection, UUID playerId) {
-        this.id = id;
+    public Snake(Coordinates head, Direction initialDirection, UUID playerId) {
         this.playerId = playerId;
         this.parts = new ArrayDeque<>();
         parts.push(head);
@@ -39,10 +37,6 @@ public class Snake {
 
     public Set<Coordinates> getParts() {
         return new HashSet<>(parts);
-    }
-
-    public int getId() {
-        return id;
     }
 
     public UUID getPlayerId() {

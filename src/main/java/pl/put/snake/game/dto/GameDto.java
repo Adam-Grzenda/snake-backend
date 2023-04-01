@@ -1,7 +1,7 @@
 package pl.put.snake.game.dto;
 
+import pl.put.snake.game.logic.Game;
 import pl.put.snake.game.model.Coordinates;
-import pl.put.snake.game.model.Game;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,7 +11,7 @@ public record GameDto(
         Set<SnakeDto> snakes,
         Set<Coordinates> apples,
         Integer boardSize,
-        Integer players
+        Set<PlayerDto> players
 ) {
     public static GameDto from(Game game) {
         return new GameDto(
@@ -19,7 +19,7 @@ public record GameDto(
                 game.getSnakes().stream().map(SnakeDto::from).collect(Collectors.toSet()),
                 game.getApples(),
                 game.getBoardSize(),
-                game.getPlayers()
+                game.getPlayers().stream().map(PlayerDto::from).collect(Collectors.toSet())
         );
     }
 }
