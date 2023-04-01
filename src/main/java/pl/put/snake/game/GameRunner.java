@@ -22,7 +22,6 @@ import static pl.put.snake.game.model.StepResult.ResultType.END_GAME;
 @RequiredArgsConstructor
 public class GameRunner {
 
-    private boolean shouldRun = true;
     private final List<BoardDeltaObserver> deltaObservers;
 
     public void submit(Game game, int stepIntervalMillis) {
@@ -34,7 +33,7 @@ public class GameRunner {
 
     @SneakyThrows
     private void run(Game game, int stepIntervalMillis) {
-        while (shouldRun) {
+        while (true) {
             Instant start = Instant.now();
             Instant expectedEnd = start.plusMillis(stepIntervalMillis);
             StepResult result = game.step();
@@ -51,7 +50,6 @@ public class GameRunner {
                 Thread.sleep(end.until(expectedEnd, ChronoUnit.MILLIS));
             } else {
                 log.error("Step interval exceeded, end: {}, expectedEnd: {}", end, expectedEnd);
-                shouldRun = false;
             }
 
             deltaObservers.forEach(deltaObserver -> {
