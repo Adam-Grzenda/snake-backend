@@ -3,15 +3,14 @@ package pl.put.snake.game.model;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 public class Snake {
-    private final UUID playerId;
+    private final Player player;
     private final ArrayDeque<Coordinates> parts;
     private Direction direction;
 
-    public Snake(Coordinates head, Direction initialDirection, UUID playerId) {
-        this.playerId = playerId;
+    public Snake(Coordinates head, Direction initialDirection, Player player) {
+        this.player = player;
         this.parts = new ArrayDeque<>();
         parts.push(head);
         this.direction = initialDirection;
@@ -39,7 +38,7 @@ public class Snake {
         return new HashSet<>(parts);
     }
 
-    public UUID getPlayerId() {
-        return playerId;
+    public Player getPlayer() {
+        return player;
     }
 }

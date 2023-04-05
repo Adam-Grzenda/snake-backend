@@ -1,5 +1,6 @@
 package pl.put.snake.game.ws;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -7,40 +8,34 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import pl.put.snake.game.logic.board.BoardDeltaObserver;
-import pl.put.snake.game.model.BoardDelta;
+import pl.put.snake.game.api.GameService;
+import pl.put.snake.game.logic.board.GameDeltaListener;
+import pl.put.snake.game.model.GameDelta;
 import pl.put.snake.game.model.Player;
-import pl.put.snake.game.ws.serialization.WebSocketMessageSerializer;
+import pl.put.snake.game.ws.serialization.WebSocketMessageMapper;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class WebSocketHandler extends TextWebSocketHandler implements BoardDeltaObserver {
+public class WebSocketHandler extends TextWebSocketHandler implements GameDeltaListener {
 
     private final Map<String, WebSocketSession> socketSessions = new HashMap<>();
-    private final WebSocketMessageSerializer serializer;
+    private final WebSocketMessageMapper<String> mapper;
+    private final GameService gameService;
 
-    @Override
-    public void update(Set<Player> players, BoardDelta delta) throws IOException {
-        for (var player : players) {
-            var playerSession = socketSessions.get(player.stringId());
-            if (playerSession == null) {
-                throw new IOException("Cannot send update to player with id=" + player.stringId() + " WebSocket session not found");
-            }
-            playerSession.sendMessage(new TextMessage(serializer.serialize(delta)));
-        }
+    @PostConstruct
+    public void registerDeltaListener() {
+        gameService.registerDeltaListener(this);
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        for (var socketSession : socketSessions.values()) {
-            socketSession.sendMessage(new TextMessage("TEST"));
-        }
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        gameService.handlePlayerInput(getPlayerId(session), mapper.deserialize(message));
     }
 
     @Override
@@ -68,4 +63,18 @@ public class WebSocketHandler extends TextWebSocketHandler implements BoardDelta
         return path[path.length - 1];
     }
 
+    public void sendMessage(String sessionId, GameDelta delta) throws IOException {
+        var session = socketSessions.get(sessionId);
+        if (session == null) {
+            throw new IOException("Cannot send update to session with id=" + sessionId + " WebSocket session not found");
+        }
+        session.sendMessage(mapper.serialize(delta));
+    }
+
+    @Override
+    public void update(Collection<Player> players, GameDelta delta) throws IOException {
+        for (var player : players) {
+            sendMessage(player.stringId(), delta);
+        }
+    }
 }

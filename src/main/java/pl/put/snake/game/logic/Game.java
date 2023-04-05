@@ -6,45 +6,54 @@ import pl.put.snake.game.logic.board.CollisionDetector;
 import pl.put.snake.game.logic.board.RandomGenerator;
 import pl.put.snake.game.model.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static pl.put.snake.game.logic.Game.GameStatus.*;
 
 
 @Slf4j
 @Getter
 public class Game {
 
+    public enum GameStatus {
+        NEW,
+        RUNNING,
+        FINISHED
+    }
+
     private final UUID id;
-    private final Set<Snake> snakes;
+
     private final Set<Coordinates> apples;
     private final CollisionDetector collisionDetector;
     private final RandomGenerator randomGenerator;
     private final int boardSize;
-    private final Set<Player> players;
+    private final Map<Player, Snake> playerSnakes;
+    private GameStatus status = NEW;
 
     public Game(int boardSize, RandomGenerator randomGenerator, CollisionDetector collisionDetector) {
         this.randomGenerator = randomGenerator;
-        this.snakes = new HashSet<>();
         this.apples = new HashSet<>();
-        this.players = new HashSet<>();
         this.boardSize = boardSize;
         this.collisionDetector = collisionDetector;
         this.id = UUID.randomUUID();
+        this.playerSnakes = new HashMap<>();
     }
 
     public StepResult step() {
-        var delta = new BoardDelta();
+        if (status != RUNNING) {
+            throw new IllegalStateException("Game is not in running state");
+        }
+        var delta = new GameDelta();
 
-        for (var snake : snakes) {
+        for (var snake : playerSnakes.values()) {
             delta.addSnakePart(snake.moveHead());
         }
 
-        var appleEatingSnakes = getAppleEatingSnakes(snakes);
+        var appleEatingSnakes = getAppleEatingSnakes(playerSnakes.values());
         removeExtraTailsExcluding(appleEatingSnakes, delta);
 
-        if (!appleEatingSnakes.isEmpty()) {
+        if (!appleEatingSnakes.isEmpty() || apples.isEmpty()) {
             appleEatingSnakes.stream().map(Snake::getHead).toList().forEach(apple -> {
                 apples.remove(apple);
                 delta.removeApple(apple);
@@ -55,38 +64,42 @@ public class Game {
             delta.addApple(newApple);
         }
 
-        var collidedSnakes = collisionDetector.detectCollisions(snakes, boardSize);
+        var collidedSnakes = collisionDetector.detectCollisions(playerSnakes.values(), boardSize);
         if (!collidedSnakes.isEmpty()) {
-            return StepResult.endGame(collidedSnakes, delta);
+            status = FINISHED;
         }
 
-        return StepResult.ok(delta);
+        delta.setStatus(status);
+        return StepResult.of(collidedSnakes, delta);
     }
 
-    public Snake join(Player player) {
-        var oldSnake = snakes.stream().filter(snake -> snake.getPlayerId().equals(player.id())).findFirst();
-        players.add(player);
-        return oldSnake.orElseGet(() -> createNewSnake(player.id()));
+    public GameDelta join(Player player) {
+        var delta = new GameDelta();
+        if (!playerSnakes.containsKey(player)) {
+            var newSnake = createNewSnake(player);
+            playerSnakes.put(player, newSnake);
+            delta.addSnakePart(newSnake.getHead());
+        }
+        delta.setStatus(status);
+        return delta;
     }
 
-    private Snake createNewSnake(UUID id) {
-        var snake = new Snake(
+    private Snake createNewSnake(Player player) {
+        return new Snake(
                 randomGenerator.generateFreeCoordinate(boardSize, getAllTakenCoordinates()),
                 Direction.RIGHT,
-                id
+                player
         );
-        snakes.add(snake);
-        return snake;
     }
 
     private Set<Coordinates> getAllTakenCoordinates() {
         var takenCoordinates = new HashSet<>(apples);
-        snakes.stream().map(Snake::getParts).forEach(takenCoordinates::addAll);
+        playerSnakes.values().stream().map(Snake::getParts).forEach(takenCoordinates::addAll);
         return takenCoordinates;
     }
 
-    private void removeExtraTailsExcluding(Set<Snake> excludedSnakes, BoardDelta delta) {
-        var tailRemovalSnakes = new HashSet<>(snakes);
+    private void removeExtraTailsExcluding(Set<Snake> excludedSnakes, GameDelta delta) {
+        var tailRemovalSnakes = new HashSet<>(playerSnakes.values());
         tailRemovalSnakes.removeAll(excludedSnakes);
         for (var snake : tailRemovalSnakes) {
             delta.removeSnakePart(snake.removeTail());
@@ -94,12 +107,31 @@ public class Game {
     }
 
 
-    private Set<Snake> getAppleEatingSnakes(Set<Snake> snakes) {
+    private Set<Snake> getAppleEatingSnakes(Collection<Snake> snakes) {
         return snakes.stream().filter(e -> apples.contains(e.getHead())).collect(Collectors.toSet());
     }
 
-    public Board getBoard() {
-        return Board.fromGame(this);
+    public void handleInput(Player player, PlayerInput input) {
+        var snake = playerSnakes.get(player);
+        if (snake == null) {
+            throw new IllegalStateException("Snake for player: " + player.id() + " does not exist");
+        }
+        snake.changeDirection(input.direction());
     }
 
+    public Collection<Snake> getSnakes() {
+        return playerSnakes.values();
+    }
+
+    public Collection<Player> getPlayers() {
+        return playerSnakes.keySet();
+    }
+
+    public void start() {
+        status = RUNNING;
+    }
+
+    public void end() {
+        status = FINISHED;
+    }
 }

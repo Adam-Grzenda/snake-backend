@@ -5,20 +5,33 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketMessage;
+import pl.put.snake.game.model.PlayerInput;
 
 @Component
 @ConditionalOnProperty(value = "websocket.serializer", havingValue = "json")
 @RequiredArgsConstructor
-public class JsonMessageSerializer implements WebSocketMessageSerializer {
+public class JsonMessageSerializer implements WebSocketMessageMapper<String> {
 
     private final ObjectMapper mapper;
 
     @Override
-    public byte[] serialize(Object payload) {
+    public WebSocketMessage<String> serialize(Object payload) {
         try {
-            return mapper.writeValueAsBytes(payload);
+            return new TextMessage(mapper.writeValueAsBytes(payload));
         } catch (JsonProcessingException e) {
-            throw new SerializationException(e);
+            throw new MessageMappingException(e);
         }
     }
+
+    @Override
+    public PlayerInput deserialize(WebSocketMessage<String> message) {
+        try {
+            return mapper.readValue(message.getPayload(), PlayerInput.class);
+        } catch (JsonProcessingException e) {
+            throw new MessageMappingException(e);
+        }
+    }
+
 }

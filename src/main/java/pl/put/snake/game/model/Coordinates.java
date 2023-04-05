@@ -6,8 +6,8 @@ public record Coordinates(
 ) {
     public Coordinates next(Direction direction) {
         return switch (direction) {
-            case UP -> new Coordinates(x, y + 1);
-            case DOWN -> new Coordinates(x, y - 1);
+            case UP -> new Coordinates(x, y - 1);
+            case DOWN -> new Coordinates(x, y + 1);
             case LEFT -> new Coordinates(x - 1, y);
             case RIGHT -> new Coordinates(x + 1, y);
         };

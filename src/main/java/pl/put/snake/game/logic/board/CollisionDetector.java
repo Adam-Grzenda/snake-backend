@@ -6,6 +6,7 @@ import pl.put.snake.game.model.Coordinates;
 import pl.put.snake.game.model.Snake;
 import pl.put.snake.game.utils.LoggingUtils;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -15,7 +16,7 @@ import java.util.stream.Collectors;
 @Component
 public class CollisionDetector {
 
-    public Set<Snake> detectCollisions(Set<Snake> snakes, int boardSize) {
+    public Set<Snake> detectCollisions(Collection<Snake> snakes, int boardSize) {
         var collidedWallSnakes = getCollidedWithWallSnakes(snakes, boardSize);
         var collidedSnakes = getCollidedWithEachOtherSnakes(snakes);
 
@@ -24,7 +25,7 @@ public class CollisionDetector {
         return allCollidedSnakes;
     }
 
-    private Set<Snake> getCollidedWithWallSnakes(Set<Snake> snakes, int boardSize) {
+    private Set<Snake> getCollidedWithWallSnakes(Collection<Snake> snakes, int boardSize) {
         var collidedSnakes = snakes.stream()
                 .filter(snake -> isCollidedWithWall(snake.getHead(), boardSize))
                 .collect(Collectors.toSet());
@@ -36,10 +37,10 @@ public class CollisionDetector {
     }
 
     private boolean isCollidedWithWall(Coordinates coordinates, int boardSize) {
-        return (coordinates.x() >= boardSize || coordinates.y() >= boardSize) || (coordinates.x() <= 0 || coordinates.y() <= 0);
+        return (coordinates.x() > boardSize || coordinates.y() > boardSize) || (coordinates.x() < 0 || coordinates.y() < 0);
     }
 
-    private Set<Snake> getCollidedWithEachOtherSnakes(Set<Snake> snakes) {
+    private Set<Snake> getCollidedWithEachOtherSnakes(Collection<Snake> snakes) {
         var collided = new HashSet<Snake>();
         for (var snake : snakes) {
             for (var otherSnake : snakes) {
