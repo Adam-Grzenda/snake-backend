@@ -44,7 +44,7 @@ public class GameRunner {
 
             gameService.updateDelta(game, result.gameDelta());
 
-            if (result.gameDelta().setStatus() == FINISHED) {
+            if (result.gameDelta().getStatus() == FINISHED) {
                 log.info("Game finished: {}", result);
                 game.end();
                 return;

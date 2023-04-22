@@ -6,11 +6,15 @@ import java.util.Set;
 
 public class Snake {
     private final Player player;
+    private final int id;
     private final ArrayDeque<Coordinates> parts;
+    private final Color color;
     private Direction direction;
 
-    public Snake(Coordinates head, Direction initialDirection, Player player) {
+    public Snake(int id, Coordinates head, Direction initialDirection, Player player, Color color) {
+        this.id = id;
         this.player = player;
+        this.color = color;
         this.parts = new ArrayDeque<>();
         parts.push(head);
         this.direction = initialDirection;
@@ -40,5 +44,13 @@ public class Snake {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public int getId() {
+        return id;
     }
 }

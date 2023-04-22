@@ -29,6 +29,7 @@ public class Game {
     private final RandomGenerator randomGenerator;
     private final int boardSize;
     private final Map<Player, Snake> playerSnakes;
+    private final Set<Player> players;
     private GameStatus status = NEW;
 
     public Game(int boardSize, RandomGenerator randomGenerator, CollisionDetector collisionDetector) {
@@ -38,6 +39,7 @@ public class Game {
         this.collisionDetector = collisionDetector;
         this.id = UUID.randomUUID();
         this.playerSnakes = new HashMap<>();
+        this.players = new HashSet<>();
     }
 
     public StepResult step() {
@@ -47,7 +49,7 @@ public class Game {
         var delta = new GameDelta();
 
         for (var snake : playerSnakes.values()) {
-            delta.addSnakePart(snake.moveHead());
+            delta.addSnakePart(snake.getId(), snake.moveHead());
         }
 
         var appleEatingSnakes = getAppleEatingSnakes(playerSnakes.values());
@@ -59,13 +61,17 @@ public class Game {
                 delta.removeApple(apple);
             });
 
-            var newApple = randomGenerator.generateFreeCoordinate(boardSize, getAllTakenCoordinates());
+            var newApple = randomGenerator.freeCoordinate(boardSize, getAllTakenCoordinates());
             apples.add(newApple);
             delta.addApple(newApple);
         }
 
         var collidedSnakes = collisionDetector.detectCollisions(playerSnakes.values(), boardSize);
-        if (!collidedSnakes.isEmpty()) {
+        playerSnakes.values().removeAll(collidedSnakes);
+        delta.removeSnakes(collidedSnakes);
+
+
+        if (playerSnakes.isEmpty()) {
             status = FINISHED;
         }
 
@@ -75,20 +81,21 @@ public class Game {
 
     public GameDelta join(Player player) {
         var delta = new GameDelta();
-        if (!playerSnakes.containsKey(player)) {
-            var newSnake = createNewSnake(player);
-            playerSnakes.put(player, newSnake);
-            delta.addSnakePart(newSnake.getHead());
-        }
+        var snake = playerSnakes.computeIfAbsent(player, p -> createNewSnake(player));
+        players.add(player);
+        delta.addSnake(snake);
+        delta.addSnakePart(snake.getId(), snake.getHead());
         delta.setStatus(status);
         return delta;
     }
 
     private Snake createNewSnake(Player player) {
         return new Snake(
-                randomGenerator.generateFreeCoordinate(boardSize, getAllTakenCoordinates()),
+                playerSnakes.size(),
+                randomGenerator.freeCoordinate(boardSize, getAllTakenCoordinates()),
                 Direction.RIGHT,
-                player
+                player,
+                randomGenerator.randomColor()
         );
     }
 
@@ -102,7 +109,7 @@ public class Game {
         var tailRemovalSnakes = new HashSet<>(playerSnakes.values());
         tailRemovalSnakes.removeAll(excludedSnakes);
         for (var snake : tailRemovalSnakes) {
-            delta.removeSnakePart(snake.removeTail());
+            delta.removeSnakePart(snake.getId(), snake.removeTail());
         }
     }
 

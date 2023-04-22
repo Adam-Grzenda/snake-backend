@@ -37,7 +37,7 @@ public class CollisionDetector {
     }
 
     private boolean isCollidedWithWall(Coordinates coordinates, int boardSize) {
-        return (coordinates.x() > boardSize || coordinates.y() > boardSize) || (coordinates.x() < 0 || coordinates.y() < 0);
+        return (coordinates.x() >= boardSize || coordinates.y() >= boardSize) || (coordinates.x() < 0 || coordinates.y() < 0);
     }
 
     private Set<Snake> getCollidedWithEachOtherSnakes(Collection<Snake> snakes) {

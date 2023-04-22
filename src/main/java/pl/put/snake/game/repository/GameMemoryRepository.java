@@ -3,6 +3,7 @@ package pl.put.snake.game.repository;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import pl.put.snake.game.logic.Game;
+import pl.put.snake.game.logic.GameNotFoundException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class GameMemoryRepository implements GameRepository {
 
     @Override
     public Game getGameById(String gameId) {
-        return findGameById(gameId).orElseThrow(() -> new IllegalStateException("Game with id: " + gameId + " does not exist"));
+        return findGameById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
     }
 
     @Override
