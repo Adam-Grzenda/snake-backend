@@ -1,9 +1,9 @@
-package pl.put.snake.game.dto;
+package pl.put.snake.game.api.dto;
 
-import pl.put.snake.game.model.Color;
+import pl.put.snake.game.model.snake.Color;
 import pl.put.snake.game.model.Coordinates;
 import pl.put.snake.game.model.Player;
-import pl.put.snake.game.model.Snake;
+import pl.put.snake.game.model.snake.Snake;
 
 import java.util.Set;
 

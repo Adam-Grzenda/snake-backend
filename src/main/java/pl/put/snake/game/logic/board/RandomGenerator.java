@@ -1,7 +1,7 @@
 package pl.put.snake.game.logic.board;
 
 import org.springframework.stereotype.Component;
-import pl.put.snake.game.model.Color;
+import pl.put.snake.game.model.snake.Color;
 import pl.put.snake.game.model.Coordinates;
 
 import java.util.Random;

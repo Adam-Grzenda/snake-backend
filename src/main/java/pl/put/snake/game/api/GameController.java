@@ -3,7 +3,7 @@ package pl.put.snake.game.api;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import pl.put.snake.game.dto.GameDto;
+import pl.put.snake.game.api.dto.GameDto;
 
 import java.util.Optional;
 

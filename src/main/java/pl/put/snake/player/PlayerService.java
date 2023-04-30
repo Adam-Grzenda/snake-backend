@@ -1,7 +1,7 @@
 package pl.put.snake.player;
 
 import org.springframework.stereotype.Service;
-import pl.put.snake.game.dto.PlayerDto;
+import pl.put.snake.game.api.dto.PlayerDto;
 import pl.put.snake.game.model.Player;
 
 import java.util.HashMap;
@@ -22,6 +22,11 @@ public class PlayerService {
 
     public Optional<Player> findPlayerById(String playerId) {
         return Optional.ofNullable(players.get(playerId));
+    }
+
+    public Player getPlayerById(String playerId) {
+        return findPlayerById(playerId)
+                .orElseThrow(() -> new IllegalStateException("Player with id: " + playerId + " does not exist"));
     }
 
 }

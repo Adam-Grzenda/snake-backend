@@ -6,5 +6,5 @@ import pl.put.snake.game.model.PlayerInput;
 public interface WebSocketMessageMapper<T> {
     WebSocketMessage<T> serialize(Object payload);
 
-    PlayerInput deserialize(WebSocketMessage<T> message);
+    PlayerInput deserialize(WebSocketMessage<?> message);
 }

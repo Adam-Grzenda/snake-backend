@@ -26,9 +26,9 @@ public class JsonMessageSerializer implements WebSocketMessageMapper<String> {
     }
 
     @Override
-    public PlayerInput deserialize(WebSocketMessage<String> message) {
+    public PlayerInput deserialize(WebSocketMessage<?> message) {
         try {
-            return mapper.readValue(message.getPayload(), PlayerInput.class);
+            return mapper.readValue(((String) message.getPayload()), PlayerInput.class);
         } catch (JsonProcessingException e) {
             throw new MessageMappingException(e);
         }

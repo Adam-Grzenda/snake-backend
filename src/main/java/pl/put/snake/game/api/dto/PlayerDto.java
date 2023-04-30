@@ -1,4 +1,4 @@
-package pl.put.snake.game.dto;
+package pl.put.snake.game.api.dto;
 
 import pl.put.snake.game.model.Player;
 

@@ -3,7 +3,7 @@ package pl.put.snake.game.logic.board;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import pl.put.snake.game.model.Coordinates;
-import pl.put.snake.game.model.Snake;
+import pl.put.snake.game.model.snake.Snake;
 import pl.put.snake.game.utils.LoggingUtils;
 
 import java.util.Collection;

@@ -4,7 +4,13 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import pl.put.snake.game.logic.board.CollisionDetector;
 import pl.put.snake.game.logic.board.RandomGenerator;
-import pl.put.snake.game.model.*;
+import pl.put.snake.game.model.Coordinates;
+import pl.put.snake.game.model.Player;
+import pl.put.snake.game.model.PlayerInput;
+import pl.put.snake.game.model.snake.Direction;
+import pl.put.snake.game.model.snake.Snake;
+import pl.put.snake.game.model.state.GameDelta;
+import pl.put.snake.game.model.state.PlayerDelta;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -19,10 +25,11 @@ public class Game {
     public enum GameStatus {
         NEW,
         RUNNING,
-        FINISHED
+        FINISHED,
+        PAUSED
     }
 
-    private final UUID id;
+    private final int id;
 
     private final Set<Coordinates> apples;
     private final CollisionDetector collisionDetector;
@@ -32,21 +39,21 @@ public class Game {
     private final Set<Player> players;
     private GameStatus status = NEW;
 
-    public Game(int boardSize, RandomGenerator randomGenerator, CollisionDetector collisionDetector) {
+    public Game(int id, int boardSize, RandomGenerator randomGenerator, CollisionDetector collisionDetector) {
         this.randomGenerator = randomGenerator;
         this.apples = new HashSet<>();
         this.boardSize = boardSize;
         this.collisionDetector = collisionDetector;
-        this.id = UUID.randomUUID();
+        this.id = id;
         this.playerSnakes = new HashMap<>();
         this.players = new HashSet<>();
     }
 
-    public StepResult step() {
+    public GameDelta step() {
         if (status != RUNNING) {
             throw new IllegalStateException("Game is not in running state");
         }
-        var delta = new GameDelta();
+        var delta = new GameDelta(this);
 
         for (var snake : playerSnakes.values()) {
             delta.addSnakePart(snake.getId(), snake.moveHead());
@@ -68,30 +75,25 @@ public class Game {
 
         var collidedSnakes = collisionDetector.detectCollisions(playerSnakes.values(), boardSize);
         playerSnakes.values().removeAll(collidedSnakes);
-        delta.removeSnakes(collidedSnakes);
-
+        collidedSnakes.forEach(delta::removeSnake);
 
         if (playerSnakes.isEmpty()) {
             status = FINISHED;
         }
 
         delta.setStatus(status);
-        return StepResult.of(collidedSnakes, delta);
+        return delta;
     }
 
-    public GameDelta join(Player player) {
-        var delta = new GameDelta();
+    public PlayerDelta join(Player player) {
         var snake = playerSnakes.computeIfAbsent(player, p -> createNewSnake(player));
         players.add(player);
-        delta.addSnake(snake);
-        delta.addSnakePart(snake.getId(), snake.getHead());
-        delta.setStatus(status);
-        return delta;
+        return new PlayerDelta(this, player, snake);
     }
 
     private Snake createNewSnake(Player player) {
         return new Snake(
-                playerSnakes.size(),
+                (short) playerSnakes.size(),
                 randomGenerator.freeCoordinate(boardSize, getAllTakenCoordinates()),
                 Direction.RIGHT,
                 player,
@@ -131,14 +133,15 @@ public class Game {
     }
 
     public Collection<Player> getPlayers() {
-        return playerSnakes.keySet();
+        return players;
     }
 
     public void start() {
         status = RUNNING;
     }
 
-    public void end() {
-        status = FINISHED;
+
+    public void pause() {
+        status = PAUSED;
     }
 }

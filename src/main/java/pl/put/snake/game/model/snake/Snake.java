@@ -1,4 +1,7 @@
-package pl.put.snake.game.model;
+package pl.put.snake.game.model.snake;
+
+import pl.put.snake.game.model.Coordinates;
+import pl.put.snake.game.model.Player;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -6,12 +9,12 @@ import java.util.Set;
 
 public class Snake {
     private final Player player;
-    private final int id;
+    private final short id;
     private final ArrayDeque<Coordinates> parts;
     private final Color color;
     private Direction direction;
 
-    public Snake(int id, Coordinates head, Direction initialDirection, Player player, Color color) {
+    public Snake(short id, Coordinates head, Direction initialDirection, Player player, Color color) {
         this.id = id;
         this.player = player;
         this.color = color;
@@ -30,27 +33,27 @@ public class Snake {
         return parts.removeLast();
     }
 
-    public void changeDirection(Direction direction) {
-        this.direction = direction;
+    public void changeDirection(Direction newDirection) {
+        if (direction == newDirection.opposite()) {
+            return;
+        }
+        this.direction = newDirection;
     }
 
     public Coordinates getHead() {
         return parts.getFirst();
     }
-
     public Set<Coordinates> getParts() {
         return new HashSet<>(parts);
     }
-
     public Player getPlayer() {
         return player;
     }
-
     public Color getColor() {
         return color;
     }
-
     public int getId() {
         return id;
     }
+
 }
