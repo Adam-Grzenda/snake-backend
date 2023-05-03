@@ -122,10 +122,9 @@ public class Game {
 
     public void handleInput(Player player, PlayerInput input) {
         var snake = playerSnakes.get(player);
-        if (snake == null) {
-            throw new IllegalStateException("Snake for player: " + player.id() + " does not exist");
+        if (snake != null) {
+            snake.changeDirection(input.direction());
         }
-        snake.changeDirection(input.direction());
     }
 
     public Collection<Snake> getSnakes() {

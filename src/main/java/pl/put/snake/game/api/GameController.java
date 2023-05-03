@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import pl.put.snake.game.api.dto.GameDto;
+import pl.put.snake.game.api.dto.PlayerDto;
 
 import java.util.Optional;
 
@@ -30,9 +31,20 @@ public class GameController {
         return gameService.joinGame(gameId, playerId);
     }
 
-    @PostMapping("/{gameId}")
+    @PostMapping("/{gameId}/start")
     public void startGame(@PathVariable String gameId) {
         gameService.startGame(gameId);
     }
+
+    @PostMapping("/{gameId}/pause")
+    public void pauseGame(@PathVariable String gameId, @RequestBody PlayerDto playerDto) {
+        gameService.pauseGame(gameId, playerDto.id());
+    }
+
+    @PostMapping("/{gameId}/resume")
+    public void resumeGame(@PathVariable String gameId) {
+        gameService.resumeGame(gameId);
+    }
+
 
 }

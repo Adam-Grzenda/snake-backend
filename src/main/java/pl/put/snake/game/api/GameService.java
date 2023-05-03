@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.put.snake.game.api.dto.GameDto;
 import pl.put.snake.game.logic.Game;
+import pl.put.snake.game.logic.GameNotFoundException;
 import pl.put.snake.game.logic.InvalidGameStateException;
 import pl.put.snake.game.logic.board.CollisionDetector;
 import pl.put.snake.game.logic.board.RandomGenerator;
@@ -65,6 +66,11 @@ public class GameService {
         gameRunner.submit(game, 500);
     }
 
+    public void pauseGame(String gameId, String playerId) {
+        var game = gameRepository.findGameById(gameId).orElseThrow(() -> new GameNotFoundException(gameId));
+        pauseGame(game, playerId);
+    }
+
     public void pauseGame(Game game, String playerId) {
         var playerSnake = game.getSnakes()
                 .stream()
@@ -109,5 +115,9 @@ public class GameService {
 
     public void registerDeltaListener(StateDeltaListener deltaListener) {
         deltaListeners.add(deltaListener);
+    }
+
+    public void resumeGame(String gameId) {
+        gameRepository.findGameById(gameId).ifPresent(Game::start);
     }
 }

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 public record GameDto(
         int gameId,
+        Game.GameStatus status,
         Set<SnakeDto> snakes,
         Set<Coordinates> apples,
         Integer boardSize,
@@ -16,6 +17,7 @@ public record GameDto(
     public static GameDto from(Game game) {
         return new GameDto(
                 game.getId(),
+                game.getStatus(),
                 game.getSnakes().stream().map(SnakeDto::from).collect(Collectors.toSet()),
                 game.getApples(),
                 game.getBoardSize(),

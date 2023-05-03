@@ -15,6 +15,7 @@ import pl.put.snake.game.ws.serialization.WebSocketMessageMapper;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class WebSocketHandler implements StateDeltaListener, org.springframework.web.socket.WebSocketHandler {
-    private final Map<String, WebSocketSession> socketSessions = new HashMap<>();
+    private final Map<String, WebSocketSession> socketSessions = Collections.synchronizedMap(new HashMap<>());
     private final WebSocketMessageMapper<?> mapper;
     private final GameService gameService;
 
