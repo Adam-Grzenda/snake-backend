@@ -31,17 +31,19 @@ public class GameRunner {
         game.start();
 
         while (true) {
+            if (game.getStatus() == PAUSED) {
+                return;
+            }
+
             var start = Instant.now();
             var expectedEnd = start.plusMillis(stepIntervalMillis);
-
-            if (game.getStatus() != PAUSED) {
-                var delta = game.step();
-                gameService.broadcastDelta(game, delta);
-                if (delta.getStatus() == FINISHED) {
-                    gameService.broadcastDelta(game, new FinishedGameDelta(game));
-                    return;
-                }
+            var delta = game.step();
+            gameService.broadcastDelta(game, delta);
+            if (delta.getStatus() == FINISHED) {
+                gameService.broadcastDelta(game, new FinishedGameDelta(game));
+                return;
             }
+
 
             Instant end = Instant.now();
             if (end.isBefore(expectedEnd)) {

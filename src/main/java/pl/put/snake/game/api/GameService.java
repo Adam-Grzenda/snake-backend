@@ -118,6 +118,6 @@ public class GameService {
     }
 
     public void resumeGame(String gameId) {
-        gameRepository.findGameById(gameId).ifPresent(Game::start);
+        gameRepository.findGameById(gameId).ifPresent(game -> gameRunner.submit(game, 500));
     }
 }
