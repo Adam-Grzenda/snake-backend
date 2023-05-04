@@ -44,7 +44,7 @@ public class CollisionDetector {
         var collided = new HashSet<Snake>();
         for (var snake : snakes) {
             for (var otherSnake : snakes) {
-                if (!Objects.equals(snake, otherSnake) && hasCollision(snake, otherSnake)) {
+                if (hasCollision(snake, otherSnake)) {
                     collided.add(snake);
                 }
             }
@@ -58,6 +58,17 @@ public class CollisionDetector {
     }
 
     private boolean hasCollision(Snake snake, Snake otherSnake) {
+        if (snake.getId() == otherSnake.getId()) {
+            //Snake is collided with itself when more than one part has same coordinates as its head
+            var collidedParts = otherSnake
+                    .getParts()
+                    .stream()
+                    .filter(part -> Objects.equals(snake.getHead(), part))
+                    .toList();
+            log.info("TEST {}", collidedParts.stream().map(Object::toString).collect(Collectors.joining(" - ")));
+            return collidedParts.size() > 1;
+        }
+
         return otherSnake.getParts().contains(snake.getHead());
     }
 }

@@ -61,9 +61,9 @@ public class GameService {
         return GameDto.from(game);
     }
 
-    public void startGame(String gameId) {
+    public void startGame(String gameId, Integer stepMillis) {
         var game = gameRepository.getGameById(gameId);
-        gameRunner.submit(game, 500);
+        gameRunner.submit(game, stepMillis);
     }
 
     public void pauseGame(String gameId, String playerId) {
@@ -117,7 +117,7 @@ public class GameService {
         deltaListeners.add(deltaListener);
     }
 
-    public void resumeGame(String gameId) {
-        gameRepository.findGameById(gameId).ifPresent(game -> gameRunner.submit(game, 500));
+    public void resumeGame(String gameId, Integer stepMillis) {
+        gameRepository.findGameById(gameId).ifPresent(game -> gameRunner.submit(game, stepMillis));
     }
 }

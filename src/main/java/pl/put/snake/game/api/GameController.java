@@ -32,8 +32,9 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/start")
-    public void startGame(@PathVariable String gameId) {
-        gameService.startGame(gameId);
+    public void startGame(@PathVariable String gameId,
+                          @RequestParam(required = false, defaultValue = "500") Integer stepMillis) {
+        gameService.startGame(gameId, stepMillis);
     }
 
     @PostMapping("/{gameId}/pause")
@@ -42,8 +43,9 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/resume")
-    public void resumeGame(@PathVariable String gameId) {
-        gameService.resumeGame(gameId);
+    public void resumeGame(@PathVariable String gameId,
+                           @RequestParam(required = false, defaultValue = "500") Integer stepMillis) {
+        gameService.resumeGame(gameId, stepMillis);
     }
 
 

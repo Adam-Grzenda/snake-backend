@@ -4,8 +4,8 @@ import pl.put.snake.game.model.Coordinates;
 import pl.put.snake.game.model.Player;
 
 import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Snake {
     private final Player player;
@@ -43,15 +43,19 @@ public class Snake {
     public Coordinates getHead() {
         return parts.getFirst();
     }
-    public Set<Coordinates> getParts() {
-        return new HashSet<>(parts);
+
+    public List<Coordinates> getParts() {
+        return new ArrayList<>(parts);
     }
+
     public Player getPlayer() {
         return player;
     }
+
     public Color getColor() {
         return color;
     }
+
     public int getId() {
         return id;
     }
