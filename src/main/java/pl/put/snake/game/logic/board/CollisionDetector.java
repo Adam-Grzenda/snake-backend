@@ -65,7 +65,6 @@ public class CollisionDetector {
                     .stream()
                     .filter(part -> Objects.equals(snake.getHead(), part))
                     .toList();
-            log.info("TEST {}", collidedParts.stream().map(Object::toString).collect(Collectors.joining(" - ")));
             return collidedParts.size() > 1;
         }
 
